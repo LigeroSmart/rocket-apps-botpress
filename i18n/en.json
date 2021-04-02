@@ -1,0 +1,16 @@
+{
+    "bot_username": "Bot Username",
+    "botpress_server_url": "botpress Server Url",
+    "botpress_service_unavailable_message": "Service Unavailable Message",
+    "botpress_service_unavailable_message_description": "The Bot will send this message to Visitor if service is unavailable",
+    "botpress_handover_message": "Handover Message",
+    "botpress_handover_message_description": "The Bot will send this message to Visitor upon handover",
+    "botpress_close_chat_message": "Close Chat Message",
+    "botpress_close_chat_message_description": "This message will be sent automatically when a chat is closed",
+    "botpress_callback_message": "Enable Callbacks",
+    "botpress_callback_message_description": "Enabling this setting will allow the app to use only callback messages. This feature is useful when you are using Reminder messages in your botpress bot.",
+    "botpress_default_handover_department": "Default Handover Department Name",
+    "botpress_default_handover_department_description": "Enter the target department name where you want to transfer the visitor upon handover",
+    "botpress_hide_quick_replies": "Hide Quick Replies",
+    "botpress_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them"
+}

@@ -1,7 +1,7 @@
 {
     "id": "6a8e6b6c-7a25-47c9-94e8-5af5075981ad",
     "version": "0.0.1",
-    "requiredApiVersion": "^1.4.0",
+    "requiredApiVersion": "^1.17.0",
     "iconFile": "icon.png",
     "author": {
         "name": "LigeroSmart",
@@ -11,5 +11,8 @@
     "name": "LigeroSmart Botpress",
     "nameSlug": "ligerosmart-botpress",
     "classFile": "LigeroSmartBotpressApp.ts",
-    "description": "Connects botpress to Rocket.Chat"
+    "description": "Connects botpress to Rocket.Chat",
+    "implements": [
+        "IPostMessageSent"
+    ]
 }
