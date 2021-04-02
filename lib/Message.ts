@@ -9,32 +9,37 @@ import { getAppSettingValue } from './Setting';
 import { uuid } from './Helper';
 
 export const createbotpressMessage = async (rid: string, read: IRead,  modify: IModify, botpressMessage: IbotpressMessageV1): Promise<any> => {
-    const text = botpressMessage.text;
-    // const quickReplies = botpressMessage.quick_replies as IbotpressQuickReplies;
-
-    // if (text && quickReplies) {
-    //     // botpressMessage is instanceof IbotpressQuickReplies
-    //     const elements: Array<IButtonElement> = quickReplies.map((payload: IbotpressQuickReply) => ({
-    //         type: BlockElementType.BUTTON,
-    //         text: {
-    //             type: TextObjectType.PLAINTEXT,
-    //             text: payload.title,
-    //         },
-    //         value: payload.payload,
-    //         actionId: uuid(),
-    //     } as IButtonElement));
-
-    //     const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
-
-    //     await createMessage(rid, read, modify, { text });
-    //     await createMessage(rid, read, modify, { actionsBlock });
-    // } else {
-        // botpressMessage is instanceof string
-    if (text){
-        await createMessage(rid, read, modify, { text });
+    let text: string = '';
+    if (botpressMessage.text) {
+        text = botpressMessage.text;
+    } else if ( botpressMessage.wrapped ) {
+        if (botpressMessage.wrapped.text){
+            text = botpressMessage.wrapped.text;
+        }
     }
+    const quickReplies = botpressMessage.quick_replies;
 
-    // }
+    if (text !== '' && quickReplies) {
+        // botpressMessage is instanceof IbotpressQuickReplies
+        const elements: Array<IButtonElement> = quickReplies.quickReplies.map((payload: IbotpressQuickReply) => ({
+            type: BlockElementType.BUTTON,
+            text: {
+                type: TextObjectType.PLAINTEXT,
+                text: payload.title,
+            },
+            value: payload.payload,
+            actionId: uuid(),
+        } as IButtonElement));
+
+        const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+
+        await createMessage(rid, read, modify, { text });
+        // await createMessage(rid, read, modify, { actionsBlock });
+    } else {
+        if (text !== ''){
+            await createMessage(rid, read, modify, { text });
+        }
+    }
 };
 
 export const createMessage = async (rid: string, read: IRead,  modify: IModify, message: any ): Promise<any> => {

@@ -4,7 +4,7 @@ export interface IbotpressMessageV1 {
     value?: boolean,
     module?: string,
     component?: string,
-    quick_replies?: Array<any>,
+    quick_replies?: IbotpressQuickReplies,
     wrapped?: any,
     sessionId?: string,
 }

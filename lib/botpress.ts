@@ -26,7 +26,9 @@ export const sendMessage = async (read: IRead, http: IHttp, sender: string, mess
     if (response.statusCode !== 200) { throw Error(`${ Logs.BOTPRESS_REST_API_COMMUNICATION_ERROR } ${ response.content }`); }
 
     // if (!callbackEnabled) {
+        console.log(JSON.stringify(response.data, null, 2));
         const parsedMessage = parsebotpressResponse(response.data.responses, sender);
+
         return parsedMessage;
     // }
     // return null;
@@ -47,28 +49,25 @@ export const parsebotpressResponse = (response: any, sender: string): Array<Ibot
 export const parseSinglebotpressMessage = (message: any, sender: string): IbotpressMessageV1 => {
 
     const { type, text, value, module, component, quick_replies, wrapped } = message;
-    if(text){
-        console.log(`CHEGOU ESSSSE TEXTO VIVA!!!!!!! ${text} do tipo ${type} do sender ${sender}`);
+
+    if(type === 'text'){
+        // console.log(`CHEGOU ESSSSE TEXTO VIVA!!!!!!! ${text} do tipo ${type} do sender ${sender}`);
+        return {
+            type: type,
+            text: text,
+            sessionId: sender,
+        };
+    } else if (component === 'QuickReplies'){
         return {
             type: type,
             text: text,
             sessionId: sender,
         };
     }
-    // if (buttons) {
-    //     const quickReplyMessage: IbotpressQuickReplies = {
-    //         text,
-    //         quickReplies: buttons,
-    //     };
-    //     return {
-    //         message: quickReplyMessage,
-    //         sessionId: recipient_id,
-    //     };
-    // } else {
+
     return {
         type,
         text,
         sessionId: sender,
     };
-    // }
 };
