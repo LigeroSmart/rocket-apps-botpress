@@ -25,13 +25,13 @@ export const sendMessage = async (read: IRead, http: IHttp, sender: string, mess
     const response = await http.post(botpressWebhookUrl, httpRequestContent);
     if (response.statusCode !== 200) { throw Error(`${ Logs.BOTPRESS_REST_API_COMMUNICATION_ERROR } ${ response.content }`); }
 
-    // if (!callbackEnabled) {
+    if (!callbackEnabled) {
         console.log(JSON.stringify(response.data, null, 2));
         const parsedMessage = parsebotpressResponse(response.data.responses, sender);
 
         return parsedMessage;
-    // }
-    // return null;
+    }
+    return null;
 };
 
 export const parsebotpressResponse = (response: any, sender: string): Array<IbotpressMessageV1> => {
@@ -51,16 +51,19 @@ export const parseSinglebotpressMessage = (message: any, sender: string): Ibotpr
     const { type, text, value, module, component, quick_replies, wrapped } = message;
 
     if(type === 'text'){
-        // console.log(`CHEGOU ESSSSE TEXTO VIVA!!!!!!! ${text} do tipo ${type} do sender ${sender}`);
         return {
             type: type,
             text: text,
             sessionId: sender,
         };
     } else if (component === 'QuickReplies'){
+        let quickreplyText = wrapped.text;
+        for(const qr of quick_replies){
+            quickreplyText += "\n" + qr.title;
+        }
         return {
             type: type,
-            text: text,
+            text: quickreplyText,
             sessionId: sender,
         };
     }

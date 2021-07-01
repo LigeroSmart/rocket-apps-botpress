@@ -13,6 +13,7 @@
     "classFile": "LigeroSmartBotpressApp.ts",
     "description": "Connects botpress to Rocket.Chat",
     "implements": [
-        "IPostMessageSent"
+        "IPostMessageSent",
+        "IPreRoomUserJoined"
     ]
 }

@@ -1,0 +1,146 @@
+# based on https://rocket.chat/docs/installation/docker-containers/docker-compose/
+# https://github.com/botpress/botpress/blob/master/examples/docker-compose/docker-compose-community-nginx.yaml
+
+version: '3.5'
+
+services:
+
+  rocketchat:
+    image: rocketchat/rocket.chat:latest
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          node main.js &&
+          s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    volumes:
+      - rocketchat-uploads:/app/uploads
+    environment:
+      - PORT=3000
+      - ROOT_URL=https://${WEBSERVER_FQDN}
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+      - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+#      - MAIL_URL=smtp://smtp.email
+#       - HTTP_PROXY=http://proxy.domain.com
+#       - HTTPS_PROXY=http://proxy.domain.com
+    depends_on:
+      - mongo
+    #ports:
+    #  - 3000:3000
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+      placement:
+        constraints:
+        - node.labels.webserver == true
+      labels:
+        - traefik.enable=true
+        #- traefik.backend=rocketchat
+        - traefik.frontend.rule=Host:${WEBSERVER_FQDN}
+        - traefik.port=3000
+        - traefik.protocol=http
+        - traefik.docker.network=web
+        - traefik.frontend.headers.customResponseHeaders=access-control-allow-origin:*
+        #- "traefik.frontend.headers.customResponseHeaders=X-Frame-Options: allow-from https://ligerostack.domain"
+    networks:
+      - default
+      - web
+
+  mongo:
+    image: mongo:4.0
+    restart: unless-stopped
+    volumes:
+     - mongo-data-db:/data/db
+     #- ./data/dump:/dump
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+      placement:
+        constraints:
+        - node.labels.database == true
+    labels:
+      - "traefik.enable=false"
+
+  # this container's job is just run the command to initialize the replica set.
+  # it will run the command and remove himself (it will not stay running)
+  mongo-init-replica:
+    image: mongo:4.0
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.database == true
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval \"
+            rs.initiate({
+              _id: 'rs0',
+              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+          s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    depends_on:
+      - mongo
+
+  botpress:
+    image: botpress/server:v12_20_1
+    restart: unless-stopped
+    volumes:
+    - botpress_data:/botpress/data
+    command: /botpress/bp
+    environment:
+      - BP_CONFIG_HTTPSERVER_HOST=0.0.0.0
+      - BP_MODULE_NLU_DUCKLINGURL=https://duckling.botpress.io/
+      #- BP_PRODUCTION=true
+      - EXTERNAL_URL=https://${BOTPRESS_FQDN}:3001/
+      - PORT=3001
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+      placement:
+        constraints:
+        - node.labels.webserver == true
+      labels:
+        - traefik.enable=true
+        - traefik.frontend.rule=Host:${BOTPRESS_FQDN}
+        - traefik.port=3001
+        - traefik.protocol=http
+        - traefik.docker.network=web
+        - traefik.frontend.headers.customResponseHeaders=access-control-allow-origin:*
+        - traefik.http.middlewares.testHeader.headers.framedeny=true
+        - traefik.http.middlewares.testHeader.headers.sslredirect=true
+        - traefik.http.middlewares.testheader.headers.addvaryheader=true
+    ports:
+      - 3001:3001
+
+volumes:
+  rocketchat-uploads:
+    driver: local
+  mongo-data-db:
+    driver: local
+  botpress_data:
+    driver: local
+
+networks:
+  web:
+    external: true

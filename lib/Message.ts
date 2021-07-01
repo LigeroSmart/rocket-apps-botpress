@@ -32,7 +32,6 @@ export const createbotpressMessage = async (rid: string, read: IRead,  modify: I
         } as IButtonElement));
 
         const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
-
         await createMessage(rid, read, modify, { text });
         // await createMessage(rid, read, modify, { actionsBlock });
     } else {
@@ -50,19 +49,20 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
     const botUserName = await getAppSettingValue(read, AppSetting.botpressBotUsername);
 
     if (!botUserName) {
-        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
+
+        // this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
         return;
     }
 
     const sender = await read.getUserReader().getByUsername(botUserName);
     if (!sender) {
-        this.app.getLogger().error(Logs.INVALID_BOT_USERNAME_SETTING);
+        // this.app.getLogger().error(Logs.INVALID_BOT_USERNAME_SETTING);
         return;
     }
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(Logs.INVALID_ROOM_ID);
+        // this.app.getLogger().error(Logs.INVALID_ROOM_ID);
         return;
     }
 

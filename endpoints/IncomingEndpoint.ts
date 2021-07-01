@@ -1,10 +1,13 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IbotpressMessageV1 } from '../enum/botpress';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
+import { parseSinglebotpressMessage } from '../lib/botpress';
 import { createHttpResponse } from '../lib/Http';
+import { createbotpressMessage } from '../lib/Message';
 import { closeChat, performHandover } from '../lib/Room';
 
 export class IncomingEndpoint extends ApiEndpoint {
@@ -46,6 +49,11 @@ export class IncomingEndpoint extends ApiEndpoint {
                     throw new Error(Logs.INVALID_ACTION_USER_ALREADY_IN_DEPARTMENT);
                 }
                 await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                break;
+            case EndpointActionNames.MESSAGE:
+                const message: IbotpressMessageV1  = parseSinglebotpressMessage(endpointContent.actionData,'');
+                // await createbotpressMessage(message.sessionId!, read, modify, message);
+                await createbotpressMessage(sessionId!, read, modify, message);
                 break;
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);

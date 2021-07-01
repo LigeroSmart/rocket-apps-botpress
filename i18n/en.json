@@ -12,5 +12,10 @@
     "botpress_default_handover_department": "Default Handover Department Name",
     "botpress_default_handover_department_description": "Enter the target department name where you want to transfer the visitor upon handover",
     "botpress_hide_quick_replies": "Hide Quick Replies",
-    "botpress_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them"
+    "botpress_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them",
+    "botpress_enable_wakeup": "Send wakeup message to the bot",
+    "botpress_enable_wakeup_description": "Sends a wakeup message to the bot before sending the first message of the visitor",
+    "botpress_enable_wakeup_message": "Wakeup message",
+    "botpress_enable_wakeup_message_description": "Message to be send to the bot",
+    "botpress_bot_id": "Botpress Bot ID"
 }
