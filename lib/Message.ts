@@ -92,13 +92,13 @@ export const createLivechatMessage = async (rid: string, read: IRead,  modify: I
 
     const botUserName = await getAppSettingValue(read, AppSetting.botpressBotUsername);
     if (!botUserName) {
-        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
+        console.log(Logs.EMPTY_BOT_USERNAME_SETTING);
         return;
     }
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
+        console.log(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
         return;
     }
 
