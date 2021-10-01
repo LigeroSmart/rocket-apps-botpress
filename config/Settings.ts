@@ -12,6 +12,7 @@ export enum AppSetting {
     botpressWakeupMessage = 'botpress_wakeup_message',
     botpressDefaultHandoverDepartment = 'botpress_target_handover_department',
     botpressHideQuickReplies = 'botpress_hide_quick_replies',
+    botpressTelegramBot = 'botpress_telegram_bot',
 }
 
 export enum DefaultMessage {
@@ -120,5 +121,14 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'botpress_hide_quick_replies',
         i18nDescription: 'botpress_hide_quick_replies_description',
         required: true,
+    },
+    {
+        id: AppSetting.botpressTelegramBot,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: undefined,
+        i18nLabel: 'botpress_telegram_label',
+        i18nDescription: 'botpress_telegram_desc',
+        required: false,
     },
 ];

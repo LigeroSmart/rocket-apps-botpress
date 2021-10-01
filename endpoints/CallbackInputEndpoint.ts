@@ -19,7 +19,7 @@ export class CallbackInputEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, persis, request.content);
+            await this.processRequest(read, modify, persis, request.content, http);
             return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
         } catch (error) {
             this.app.getLogger().error(`${ Logs.ENDPOINT_REQUEST_PROCESSING_ERROR } ${error}`);
@@ -27,9 +27,9 @@ export class CallbackInputEndpoint extends ApiEndpoint {
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: any) {
+    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: any, http: IHttp) {
         const message: IbotpressMessageV1  = parseSinglebotpressMessage(endpointContent,'');
 
-        await createbotpressMessage(message.sessionId!, read, modify, message);
+        await createbotpressMessage(message.sessionId!, read, modify, message, http);
     }
 }

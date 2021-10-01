@@ -17,5 +17,7 @@
     "botpress_enable_wakeup_description": "Sends a wakeup message to the bot before sending the first message of the visitor",
     "botpress_enable_wakeup_message": "Wakeup message",
     "botpress_enable_wakeup_message_description": "Message to be send to the bot",
-    "botpress_bot_id": "Botpress Bot ID"
+    "botpress_bot_id": "Botpress Bot ID",
+    "botpress_telegram_label": "Telegram BOT Token",
+    "botpress_telegram_desc": "If you have Telegram in your omnichannel and wants botpress to send messages to it, please provide the same BOT Token of you Telegram Rocket.Chat App"
 }

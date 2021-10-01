@@ -1,4 +1,4 @@
-import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
@@ -42,10 +42,14 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
-export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string | null) => {
+export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string,
+    http:IHttp,
+    targetDepartmentName?: string | null ) => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.botpressHandoverMessage);
-    await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_botpressHandoverMessage });
+    await createMessage(rid, read, modify,
+         { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_botpressHandoverMessage },
+         http);
 
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
@@ -76,6 +80,8 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     if (!result) {
         const offlineMessage: string = await getAppSettingValue(read, AppSetting.botpressServiceUnavailableMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_botpressServiceUnavailableMessage });
+        await createMessage(rid, read, modify,
+             { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_botpressServiceUnavailableMessage },
+             http);
     }
 };

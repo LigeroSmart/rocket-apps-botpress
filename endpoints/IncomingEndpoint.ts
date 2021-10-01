@@ -22,7 +22,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, persis, request.content);
+            await this.processRequest(read, modify, persis, request.content, http);
             return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
         } catch (error) {
             this.app.getLogger().error(`${ Logs.ENDPOINT_REQUEST_PROCESSING_ERROR } ${ error }`);
@@ -30,7 +30,8 @@ export class IncomingEndpoint extends ApiEndpoint {
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: IActionsEndpointContent) {
+    private async processRequest(read: IRead, modify: IModify, persis: IPersistence,
+                                 endpointContent: IActionsEndpointContent, http: IHttp) {
 
         const { action, sessionId } = endpointContent;
         if (!sessionId) {
@@ -48,12 +49,12 @@ export class IncomingEndpoint extends ApiEndpoint {
                 if (targetDepartment && name && targetDepartment === name) {
                     throw new Error(Logs.INVALID_ACTION_USER_ALREADY_IN_DEPARTMENT);
                 }
-                await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                await performHandover(modify, read, sessionId, visitorToken, http, targetDepartment);
                 break;
             case EndpointActionNames.MESSAGE:
                 const message: IbotpressMessageV1  = parseSinglebotpressMessage(endpointContent.actionData,'');
                 // await createbotpressMessage(message.sessionId!, read, modify, message);
-                await createbotpressMessage(sessionId!, read, modify, message);
+                await createbotpressMessage(sessionId!, read, modify, message, http);
                 break;
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);

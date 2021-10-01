@@ -1,4 +1,4 @@
-import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
@@ -8,7 +8,10 @@ import { IbotpressMessage, IbotpressMessageV1, IbotpressQuickReplies, IbotpressQ
 import { getAppSettingValue } from './Setting';
 import { uuid } from './Helper';
 
-export const createbotpressMessage = async (rid: string, read: IRead,  modify: IModify, botpressMessage: IbotpressMessageV1): Promise<any> => {
+export const createbotpressMessage = async (rid: string, read: IRead,
+                                            modify: IModify,
+                                            botpressMessage: IbotpressMessageV1,
+                                            http: IHttp): Promise<any> => {
     let text: string = '';
     if (botpressMessage.text) {
         text = botpressMessage.text;
@@ -32,16 +35,16 @@ export const createbotpressMessage = async (rid: string, read: IRead,  modify: I
         } as IButtonElement));
 
         const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
-        await createMessage(rid, read, modify, { text });
+        await createMessage(rid, read, modify, { text }, http);
         // await createMessage(rid, read, modify, { actionsBlock });
     } else {
         if (text !== ''){
-            await createMessage(rid, read, modify, { text });
+            await createMessage(rid, read, modify, { text },http);
         }
     }
 };
 
-export const createMessage = async (rid: string, read: IRead,  modify: IModify, message: any ): Promise<any> => {
+export const createMessage = async (rid: string, read: IRead,  modify: IModify, message: any, http: IHttp ): Promise<any> => {
     if (!message) {
         return;
     }
@@ -71,6 +74,12 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
 
     if (text) {
         msg.setText(text);
+
+        const telegramToken = await (await read.getEnvironmentReader().getSettings().getById('botpress_telegram_bot')).value;
+        if(telegramToken && room.customFields && room.customFields.telegramChannel){
+            await SendTelegramMessage(http, text, telegramToken, room.customFields.telegramChannel);
+        }
+
     }
 
     if (actionsBlock) {
@@ -125,4 +134,22 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
     msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const SendTelegramMessage = async (http: IHttp, text: String, token: String, telegramChannel): Promise<void> => {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const { data } = await http.post(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        content: JSON.stringify({
+            chat_id: telegramChannel.session_id,
+            text,
+        })
+    });
+    const { ok } = data;
+    if (!ok) {
+        throw new Error(`LigeroSmart could not send message through Telegram channel ${JSON.stringify(data)}`);
+    }
 };

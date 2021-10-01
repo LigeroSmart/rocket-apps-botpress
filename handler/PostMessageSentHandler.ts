@@ -7,7 +7,7 @@ import { AppSetting, DefaultMessage } from '../config/Settings';
 import { IbotpressMessage, IbotpressMessageV1 } from '../enum/botpress';
 import { Logs } from '../enum/Logs';
 import { sendMessage } from '../lib/botpress';
-import { createbotpressMessage, createMessage } from '../lib/Message';
+import { createbotpressMessage, createMessage, SendTelegramMessage } from '../lib/Message';
 // import { Logs } from '../enum/Logs';
 // import { IbotpressMessage } from '../enum/botpress';
 // import { createMessage, createbotpressMessage } from '../lib/Message';
@@ -91,14 +91,14 @@ export class PostMessageSentHandler {
             const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.botpressServiceUnavailableMessage);
             await createMessage(rid, this.read, this.modify, {
                 text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_botpressServiceUnavailableMessage,
-            });
+            }, this.http);
 
             return;
         }
 
         if (response) {
             for (const message of response) {
-                await createbotpressMessage(rid, this.read, this.modify, message);
+                await createbotpressMessage(rid, this.read, this.modify, message, this.http);
             }
         }
     }
