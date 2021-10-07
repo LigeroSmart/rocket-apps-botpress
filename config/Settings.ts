@@ -127,7 +127,7 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: undefined,
-        i18nLabel: 'botpress_telegram_label',
+        i18nLabel: 'botpress_telegram_bot',
         i18nDescription: 'botpress_telegram_desc',
         required: false,
     },
