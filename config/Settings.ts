@@ -1,7 +1,7 @@
 import { ISetting, SettingType} from '@rocket.chat/apps-engine/definition/settings';
 
 export enum AppSetting {
-    botpressBotUsername = 'ligerosmart-botpress.bot',
+    botpressBotUsername = 'ligerosmart-botpress_bot',
     botpressServerUrl = 'botpress_server_url',
     botpressBotID = 'botpress_bot_id',
     botpressServiceUnavailableMessage = 'botpress_service_unavailable_message',
